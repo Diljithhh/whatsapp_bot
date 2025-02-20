@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "automate_media"
+version = "0.1.0"
+description = "A FastAPI-based WhatsApp automation service"
+authors = ["Your Name <your.email@example.com>"]
+packages = [{include = "automate_media"}]
+
+[tool.poetry.dependencies]
+python = "^3.11.6"
+fastapi = "^0.100"
+uvicorn = "^0.22.0"
+pydantic = "^2.0"
+firebase-admin = "^6.0"
+aiohttp = "^3.8.4"
+email-validator = "^2.1.0"
+google-generativeai = "^0.8.4"
+python-dotenv = "^1.0.0"
+websockets = "^14.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+dev = "automate_media.run:start"
