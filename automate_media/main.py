@@ -4,6 +4,7 @@ import json
 import os
 from dotenv import load_dotenv
 from automate_media.services.agent import DealerAgent
+from fastapi.middleware.cors import CORSMiddleware
 
 
 # Load environment variables from .env file
@@ -15,7 +16,13 @@ if not os.getenv("GEMINI_API_KEY"):
 
 app = FastAPI(title="AMD Retailer Support Chatbott")
 
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this to your needs
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Initialize dealer agent with Gemini API key
 dealer_agent = DealerAgent(os.getenv("GEMINI_API_KEY"))
