@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
 import os
+import logging
 
 
 router = APIRouter()
@@ -10,6 +11,10 @@ VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN")
 
 @router.get("/webhook")
 async def verify_webhook(request: Request):
+    # Log the incoming request for debugging
+    logging.info("Received verification request")
+    logging.info(f"Query params: {request.query_params}")
+
     # Extract query parameters
     mode = request.query_params.get("hub.mode")
     token = request.query_params.get("hub.verify_token")
