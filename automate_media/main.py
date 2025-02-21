@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from automate_media.services.agent import DealerAgent
 from fastapi.middleware.cors import CORSMiddleware
 import logging
+from automate_media.routes.whatsapp import router as whatsapp_router
 
 
 # Load environment variables from .env file
@@ -33,6 +34,9 @@ connections: Dict[WebSocket, Dict] = {}
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
+
+# Register the WhatsApp webhook router
+app.include_router(whatsapp_router, prefix="/whatsapp")
 
 @app.websocket("/ws/chat")
 async def websocket_endpoint(websocket: WebSocket):
