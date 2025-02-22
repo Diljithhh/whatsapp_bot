@@ -210,7 +210,7 @@ load_dotenv()
 WHATSAPP_CONFIG = {
     "PHONE_NUMBER_ID": "595597073629843",
     "API_KEY": "EAARRBhH8Gg4BOy1rYSlckUQy10Cx0L8ZBwLGUeD9fhXjrZBt5xH1XSuqqhQnGTop4t2LxZCBLMPkJfMGsQZAEKsrEBooA2a30ndXzqZCoSgxr94YJUjeuCZAlbMZAkkiiHFqnX8AaQ2eFPZCGPyQjQXFAKBLHe4xMx9m9DPioUcahnckZBmfVpmSGLCGlV2eyZCeV0sggPrwwZCNx9ZCTxAYulODthZCDMAZDZD",
-    "VERIFY_TOKEN": "787f058a-a80b-4b22-92de-55a4a898665a"  # Set this to a secure random string
+    "VERIFY_TOKEN": "d489391c991f947c7d40257bdfd3ce4c"  # Set this to a secure random string
 }
 
 # Initialize FastAPI app
