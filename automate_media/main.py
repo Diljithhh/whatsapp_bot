@@ -210,7 +210,7 @@ load_dotenv()
 WHATSAPP_CONFIG = {
     "PHONE_NUMBER_ID": "595597073629843",
     "API_KEY": "EAARRBhH8Gg4BOy1rYSlckUQy10Cx0L8ZBwLGUeD9fhXjrZBt5xH1XSuqqhQnGTop4t2LxZCBLMPkJfMGsQZAEKsrEBooA2a30ndXzqZCoSgxr94YJUjeuCZAlbMZAkkiiHFqnX8AaQ2eFPZCGPyQjQXFAKBLHe4xMx9m9DPioUcahnckZBmfVpmSGLCGlV2eyZCeV0sggPrwwZCNx9ZCTxAYulODthZCDMAZDZD",
-    "VERIFY_TOKEN": "8848384116"  # Set this to a secure random string
+    "VERIFY_TOKEN": "787f058a-a80b-4b22-92de-55a4a898665a"  # Set this to a secure random string
 }
 
 # Initialize FastAPI app
@@ -277,7 +277,7 @@ async def send_whatsapp_message(to: str, message: str):
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(url, json=data, headers=headers)
-            logger.info(f"WhatsApp API response: {response.json()}") 
+            logger.info(f"WhatsApp API response: {response.json()}")
             response.raise_for_status()
             return response.json()
     except Exception as e:
