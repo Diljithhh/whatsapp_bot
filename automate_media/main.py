@@ -277,6 +277,7 @@ async def send_whatsapp_message(to: str, message: str):
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(url, json=data, headers=headers)
+            logger.info(f"WhatsApp API response: {response.json()}") 
             response.raise_for_status()
             return response.json()
     except Exception as e:
@@ -332,6 +333,7 @@ async def verify_webhook(request: Request):
 async def webhook_handler(request: Request):
     """Handle incoming WhatsApp messages"""
     body = await request.body()
+    logger.info(f"Received raw webhook body: {body.decode()}")
     signature = request.headers.get("X-Hub-Signature-256", "")
 
     # Verify signature
@@ -357,6 +359,7 @@ async def webhook_handler(request: Request):
             message = value["messages"][0]
             phone_number = message["from"]
             message_text = message["text"]["body"]
+            logger.info(f"Processing message from {phone_number}: {message_text}")
 
             # Get or create session
             session = session_manager.get_session(phone_number)
