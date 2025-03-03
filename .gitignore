@@ -25,6 +25,7 @@ wheels/
 .installed.cfg
 *.egg
 
+
 # Virtual Environment
 venv/
 env/
@@ -64,3 +65,8 @@ firebase-credentials.json
 
 # Poetry
 poetry.lock
+
+
+
+
+echo "firebase_service_account.json" >> .gitignore
