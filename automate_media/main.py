@@ -202,6 +202,8 @@ import hmac
 import hashlib
 import httpx
 from datetime import datetime
+from automate_media.services.firestore_service import save_lead, check_partner
+from automate_media.routes.partners import router as partners_router
 
 # Load environment variables
 load_dotenv()
@@ -224,6 +226,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register the partners router
+app.include_router(partners_router, prefix="/partners")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -364,14 +369,45 @@ async def webhook_handler(request: Request):
             # Get or create session
             session = session_manager.get_session(phone_number)
 
+            # Check if this is the user's first message in this session
+            is_first_message = len(session["context"]) == 0
+
+            # If it's the first message, check if the user is a registered partner
+            if is_first_message:
+                partner = await check_partner(phone_number)
+
+                if partner:
+                    # User is a registered partner
+                    partner_name = partner.get('partnerName') or partner.get('contactPerson', 'Partner')
+                    greeting = f"Hello {partner_name}! Welcome back. How can I assist you today?"
+                    await send_whatsapp_message(phone_number, greeting)
+
+                    # Update context with greeting
+                    session_manager.update_context(phone_number, greeting, "assistant")
+
+                    # Store partner info in session
+                    session["partner_info"] = partner
+                else:
+                    # User is not a registered partner
+                    response = "Hi! You are not a registered partner. Please contact our sales team to register."
+                    await send_whatsapp_message(phone_number, response)
+
+                    # Update context with response
+                    session_manager.update_context(phone_number, response, "assistant")
+                    return {"status": "ok"}
+
             # Update context with user message
             session_manager.update_context(phone_number, message_text, "user")
 
-            # Process with AI agent
-            response = await dealer_agent.process_message(
-                message_text,
-                session
-            )
+            # Process with AI agent only if the user is a registered partner
+            if "partner_info" in session:
+                response = await dealer_agent.process_message(
+                    message_text,
+                    session
+                )
+            else:
+                # For non-partners, provide a standard response
+                response = "Please contact our sales team to register as a partner."
 
             # Update context with AI response
             session_manager.update_context(phone_number, response, "assistant")
