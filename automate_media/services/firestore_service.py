@@ -1,16 +1,130 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Get the path to Firebase credentials from environment variables
 cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "firebase_credentials.json")
-cred = credentials.Certificate(cred_path)
 
-# Initialize the Firebase app if it hasn't been initialized yet
-if not firebase_admin._apps:
-    firebase_admin.initialize_app(cred)
+# Initialize Firebase with error handling for development/production
+try:
+    # Check if credentials file exists
+    if os.path.exists(cred_path):
+        cred = credentials.Certificate(cred_path)
 
-firestore_client = firestore.client()
+        # Initialize the Firebase app if it hasn't been initialized yet
+        if not firebase_admin._apps:
+            logger.info(f"Initializing Firebase with credentials from {cred_path}")
+            firebase_admin.initialize_app(cred)
+
+        firestore_client = firestore.client()
+    else:
+        logger.warning(f"Firebase credentials file not found at {cred_path}. Using mock implementation.")
+        # Set up mock for local development when credentials not available
+        class MockFirestore:
+            def collection(self, name):
+                return MockCollection(name)
+
+        class MockCollection:
+            def __init__(self, name):
+                self.name = name
+
+            def document(self, doc_id):
+                return MockDocument(doc_id)
+
+            def where(self, field, op, value):
+                return self
+
+            def limit(self, count):
+                return self
+
+            def get(self):
+                return []
+
+        class MockDocument:
+            def __init__(self, doc_id):
+                self.id = doc_id
+
+            def set(self, data):
+                logger.info(f"Mock set document {self.id}: {data}")
+                return self.id
+
+            def update(self, data):
+                logger.info(f"Mock update document {self.id}: {data}")
+                return True
+
+            def delete(self):
+                logger.info(f"Mock delete document {self.id}")
+                return True
+
+            def get(self):
+                mock_doc = MockDocumentSnapshot(self.id)
+                return mock_doc
+
+        class MockDocumentSnapshot:
+            def __init__(self, doc_id):
+                self.id = doc_id
+                self.exists = False
+
+            def to_dict(self):
+                return {}
+
+        firestore_client = MockFirestore()
+
+except Exception as e:
+    logger.error(f"Error initializing Firebase: {str(e)}")
+    # Provide a mock implementation as fallback
+    class MockFirestore:
+        def collection(self, name):
+            return MockCollection(name)
+
+    class MockCollection:
+        def __init__(self, name):
+            self.name = name
+
+        def document(self, doc_id):
+            return MockDocument(doc_id)
+
+        def where(self, field, op, value):
+            return self
+
+        def limit(self, count):
+            return self
+
+        def get(self):
+            return []
+
+    class MockDocument:
+        def __init__(self, doc_id):
+            self.id = doc_id
+
+        def set(self, data):
+            logger.info(f"Mock set document {self.id}: {data}")
+            return self.id
+
+        def update(self, data):
+            logger.info(f"Mock update document {self.id}: {data}")
+            return True
+
+        def delete(self):
+            logger.info(f"Mock delete document {self.id}")
+            return True
+
+        def get(self):
+            mock_doc = MockDocumentSnapshot(self.id)
+            return mock_doc
+
+    class MockDocumentSnapshot:
+        def __init__(self, doc_id):
+            self.id = doc_id
+            self.exists = False
+
+        def to_dict(self):
+            return {}
+
+    firestore_client = MockFirestore()
 
 async def save_lead(lead_data):
     lead_collection = firestore_client.collection('leads')
